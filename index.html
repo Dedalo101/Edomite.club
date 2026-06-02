@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Edomite · Techno · Desert Bass · Glue Records</title>
+<meta name="description" content="Edomite — underground techno DJ and producer. Resident artist of Glue Records, Málaga. Mixes, bookings, DJ sets.">
+<meta name="keywords" content="Edomite, edomite.club, techno, underground, Glue Records, Málaga, DJ, electronic music, desert techno, DJ sets, bookings">
+<meta name="author" content="Edomite">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://edomite.club/">
+
+<meta name="theme-color" content="#060302">
+<meta name="color-scheme" content="dark">
+
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="Edomite">
+<meta property="og:title" content="Edomite · Techno · Glue Records">
+<meta property="og:description" content="Underground techno DJ and producer. Glue Records artist. Bookings and DJ sets.">
+<meta property="og:url" content="https://edomite.club/">
+<meta property="og:image" content="https://edomite.club/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Edomite — Underground Techno · Glue Records">
+<meta property="og:locale" content="en_GB">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Edomite · Techno · Glue Records">
+<meta name="twitter:description" content="Underground techno DJ and producer. Glue Records artist.">
+<meta name="twitter:image" content="https://edomite.club/og-image.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MusicGroup",
+  "name": "Edomite",
+  "description": "Underground techno DJ and producer. Glue Records resident artist based in Málaga, Spain.",
+  "url": "https://edomite.club",
+  "image": "https://edomite.club/og-image.png",
+  "genre": ["Techno", "Underground", "Electronic", "Desert Techno"],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Málaga",
+    "addressCountry": "ES"
+  },
+  "memberOf": {
+    "@type": "MusicGroup",
+    "name": "Glue Records",
+    "url": "https://gluerecords.club"
+  },
+  "sameAs": [
+    "https://www.mixcloud.com/Edomite/",
+    "https://gluerecords.club"
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --rust:   #b84a1e;
+  --sand:   #c9a96e;
+  --ember:  #e05a1f;
+  --bg:     #060302;
+  --dim:    rgba(200,120,40,.18);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: 'Share Tech Mono', monospace;
+  cursor: crosshair;
+}
+
+#bg-canvas {
+  position: fixed; inset: 0;
+  width:100%; height:100%;
+  z-index: 0;
+}
+
+#scanlines {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,.13) 2px, rgba(0,0,0,.13) 3px
+  );
+}
+
+.stage {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0;
+  pointer-events: none;
+}
+
+.label-link {
+  position: fixed; top: 22px; left: clamp(18px,3vw,38px);
+  z-index: 20;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(7px,.9vw,9px);
+  letter-spacing: .45em;
+  color: rgba(200,100,30,.35);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color .25s;
+  pointer-events: all;
+}
+.label-link:hover { color: var(--sand); }
+
+.eyebrow {
+  font-size: clamp(7px,.95vw,10px);
+  letter-spacing: .6em;
+  color: rgba(200,100,30,.3);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.title {
+  font-family: 'Special Elite', serif;
+  font-size: clamp(64px, 14vw, 196px);
+  line-height: .9;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  text-shadow:
+    -3px 0 0 rgba(180,50,10,.4),
+     3px 0 0 rgba(200,120,40,.2),
+     0 0 120px rgba(180,60,10,.12);
+  animation: titleGlitch 9s infinite;
+  text-align: center;
+}
+
+@keyframes titleGlitch {
+  0%,92%,100% { clip-path:none; transform:none; }
+  93%  { clip-path:inset(20% 0 55% 0); transform:translate(-5px,0); }
+  94%  { clip-path:inset(65% 0  8% 0); transform:translate( 5px,0); }
+  95%  { clip-path:none; transform:none; }
+  97%  { clip-path:inset( 8% 0 75% 0); transform:translate(-2px,0); }
+  97.5%{ clip-path:none; transform:none; }
+}
+
+.rule {
+  width: clamp(40px,10vw,130px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rust), transparent);
+  margin: 20px auto;
+  opacity: .4;
+}
+
+.tagline {
+  font-size: clamp(7px,.9vw,9px);
+  letter-spacing: .5em;
+  color: rgba(255,255,255,.18);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 20;
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(18px,4vw,56px);
+  padding: clamp(14px,2.5vh,24px) clamp(16px,3vw,40px);
+  background: linear-gradient(0deg, rgba(6,3,2,.98) 60%, transparent);
+  pointer-events: all;
+}
+
+nav a {
+  font-family: 'Special Elite', serif;
+  font-size: clamp(11px,1.6vw,15px);
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.3);
+  text-decoration: none;
+  text-transform: lowercase;
+  transition: color .25s, text-shadow .25s;
+}
+nav a:hover {
+  color: #fff;
+  text-shadow: 0 0 18px var(--ember);
+}
+
+.coord {
+  position: fixed;
+  font-size: 7px; letter-spacing: .3em;
+  color: rgba(200,100,30,.18);
+  text-transform: uppercase;
+  pointer-events: none; z-index: 15;
+}
+.coord-tl { top:14px; left:clamp(18px,3vw,38px); padding-left: 90px; }
+.coord-tr { top:14px; right:clamp(18px,3vw,38px); text-align:right; }
+.coord-bl { bottom:70px; left:clamp(18px,3vw,38px); }
+
+@media (max-width:600px) {
+  .title { font-size: clamp(52px,17vw,100px); }
+  nav { gap: clamp(14px,5vw,32px); padding-bottom: 20px; }
+  nav a { font-size: clamp(10px,3.5vw,14px); }
+}
+@media (min-width:1600px) {
+  .title { font-size: clamp(160px,12vw,220px); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div id="scanlines"></div>
+
+<a class="label-link" href="https://gluerecords.club" target="_blank" rel="noopener">Glue Records ↗</a>
+
+<span class="coord coord-tl">36.7213° N · 4.4214° W</span>
+<span class="coord coord-tr">Est. 2024</span>
+<span class="coord coord-bl">Edomite.club</span>
+
+<div class="stage">
+  <p class="eyebrow">Underground · Techno · Málaga</p>
+  <h1 class="title">Edomite</h1>
+  <div class="rule"></div>
+  <p class="tagline">Red Land · Dust · Bass</p>
+</div>
+
+<nav>
+  <a href="https://www.mixcloud.com/Edomite/" target="_blank" rel="noopener">mixes</a>
+  <a href="mailto:info@gluerecords.club">bookings</a>
+  <a href="https://www.mixcloud.com/Edomite/" target="_blank" rel="noopener">dj sets</a>
+  <a href="https://gluerecords.club" target="_blank" rel="noopener">label</a>
+</nav>
+
+<section aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
+  <h1>Edomite — Underground Techno DJ · Glue Records · Málaga</h1>
+  <p>Edomite is an underground techno DJ and producer, resident artist of Glue Records in Málaga, Spain. Specialising in hypnotic, dark techno with roots in desert bass and raw electronic sound. Available for bookings via Glue Records. Mixes and DJ sets on Mixcloud: mixcloud.com/Edomite/</p>
+  <p>Edomite · techno · underground · Glue Records · Málaga · España · DJ sets · bookings · electronic music · edomite.club</p>
+</section>
+
+<script>
+const PTR = { x: window.innerWidth/2, y: window.innerHeight/2, nx:0, ny:0 };
+window.addEventListener('mousemove', e => {
+  PTR.x=e.clientX; PTR.y=e.clientY;
+  PTR.nx=e.clientX/window.innerWidth*2-1;
+  PTR.ny=e.clientY/window.innerHeight*2-1;
+},{passive:true});
+window.addEventListener('touchmove', e=>{
+  const t=e.touches[0];
+  PTR.x=t.clientX; PTR.y=t.clientY;
+  PTR.nx=t.clientX/window.innerWidth*2-1;
+  PTR.ny=t.clientY/window.innerHeight*2-1;
+},{passive:true});
+
+(function(){
+  const cv  = document.getElementById('bg-canvas');
+  const ctx = cv.getContext('2d');
+  let W, H, t = 0;
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio||1, 2);
+    W = Math.floor(window.innerWidth  * dpr);
+    H = Math.floor(window.innerHeight * dpr);
+    cv.width  = W; cv.height = H;
+    cv.style.width  = window.innerWidth  + 'px';
+    cv.style.height = window.innerHeight + 'px';
+    initParticles();
+    buildGrid();
+  }
+
+  const N = 420;
+  const particles = [];
+
+  function initParticles() {
+    particles.length = 0;
+    for (let i=0; i<N; i++) particles.push(makeParticle(true));
+  }
+
+  function makeParticle(full) {
+    const x = Math.random()*W;
+    const y = full ? Math.random()*H : -4;
+    const size  = .6 + Math.random()*2.2;
+    const speed = .18 + Math.random()*.55;
+    const drift = (Math.random()-.5)*.35;
+    const hue   = 18 + Math.random()*22;
+    const sat   = 55 + Math.random()*30;
+    const lum   = 38 + Math.random()*32;
+    const alpha = .18 + Math.random()*.45;
+    const wave  = Math.random()*Math.PI*2;
+    return {x, y, size, speed, drift, hue, sat, lum, alpha, wave, vy: speed};
+  }
+
+  const GS = 80;
+
+  function buildGrid() {}
+
+  function warpPt(bx, by, tt) {
+    const dx = bx/W*2-1 - PTR.nx;
+    const dy = by/H*2-1 - PTR.ny;
+    const d2 = dx*dx+dy*dy;
+    const pull = Math.exp(-d2*3.5)*28;
+    return {
+      x: bx + PTR.nx*pull + Math.sin(tt*.4 + by*.006)*3,
+      y: by + PTR.ny*pull + Math.cos(tt*.3 + bx*.006)*2.4
+    };
+  }
+
+  function draw() {
+    requestAnimationFrame(draw);
+    t += .004;
+
+    ctx.fillStyle = '#060302';
+    ctx.fillRect(0,0,W,H);
+
+    const dpr = Math.min(window.devicePixelRatio||1,2);
+    const mx = PTR.x * dpr, my = PTR.y * dpr;
+
+    ctx.save();
+    ctx.lineWidth = .5;
+    const cols = Math.ceil(W/GS)+2;
+    const rows = Math.ceil(H/GS)+2;
+    for (let r=0; r<rows; r++) {
+      ctx.beginPath();
+      for (let c=0; c<cols; c++) {
+        const bx = c*GS-GS, by = r*GS-GS;
+        const p  = warpPt(bx,by,t);
+        const dm = Math.hypot(p.x-mx, p.y-my);
+        const near = Math.max(0, 1-dm/320);
+        ctx.strokeStyle = `rgba(${140+near*80},${55+near*30},${10+near*10},${.04+near*.12})`;
+        if (c===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
+      }
+      ctx.stroke();
+    }
+    for (let c=0; c<cols; c++) {
+      ctx.beginPath();
+      for (let r=0; r<rows; r++) {
+        const bx = c*GS-GS, by = r*GS-GS;
+        const p  = warpPt(bx,by,t);
+        const dm = Math.hypot(p.x-mx, p.y-my);
+        const near = Math.max(0, 1-dm/320);
+        ctx.strokeStyle = `rgba(${140+near*80},${55+near*30},${10+near*10},${.03+near*.09})`;
+        if (r===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    for (let i=0; i<particles.length; i++) {
+      const p = particles[i];
+      p.x += p.drift + PTR.nx*.28 + Math.sin(t*p.wave*.3+i)*.18;
+      p.y += p.vy;
+      const dm2  = Math.hypot(p.x-mx, p.y-my);
+      const near2 = Math.max(0, 1-dm2/200);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size*(1+near2*.5), 0, Math.PI*2);
+      ctx.fillStyle = `hsla(${p.hue},${p.sat}%,${p.lum+near2*22}%,${p.alpha+near2*.3})`;
+      ctx.fill();
+      if (p.y > H+8 || p.x < -20 || p.x > W+20) particles[i] = makeParticle(false);
+    }
+
+    if (Math.random() < .004) {
+      ctx.fillStyle = `rgba(180,60,10,${.015+Math.random()*.03})`;
+      ctx.fillRect(0, Math.random()*H, W, Math.random()*2+.5);
+    }
+
+    const vig = ctx.createRadialGradient(W/2,H/2,H*.2,W/2,H/2,H*.85);
+    vig.addColorStop(0,'rgba(0,0,0,0)');
+    vig.addColorStop(1,'rgba(0,0,0,.72)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  window.addEventListener('resize', resize, {passive:true});
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>
