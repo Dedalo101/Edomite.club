@@ -1,0 +1,18 @@
+# robots.txt — edomite.club
+
+User-agent: *
+Allow: /
+
+Sitemap: https://edomite.club/sitemap.xml
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
