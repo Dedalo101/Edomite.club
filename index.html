@@ -426,6 +426,7 @@ window.addEventListener('touchmove', e=>{
   let titleRect = null;
   let titleLetters = [];
   let isOverTitle = false;
+  let mouseAttractEnd = 0;
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio||1, 2);
@@ -486,23 +487,13 @@ window.addEventListener('touchmove', e=>{
     const titleEl = document.querySelector('.title');
     if (!titleEl) return;
 
-    // split into letters once
-    if (titleLetters.length === 0) {
-      const text = titleEl.textContent;
-      titleEl.innerHTML = '';
-      for (let char of text) {
-        const span = document.createElement('span');
-        span.textContent = char;
-        span.style.display = 'inline-block';
-        span.style.position = 'relative';
-        span.style.transition = 'none'; // instant for vortex
-        if (char === ' ') span.style.width = '0.2em';
-        titleEl.appendChild(span);
-      }
-      titleLetters = Array.from(titleEl.children);
+    // undo letter scrambler: restore original text if it was split
+    if (titleLetters.length > 0) {
+      titleEl.textContent = 'Edomite';
+      titleLetters = [];
     }
 
-    // update rect (cheap enough)
+    // update rect for detection
     titleRect = titleEl.getBoundingClientRect();
 
     const mxClient = PTR.x;
@@ -512,42 +503,21 @@ window.addEventListener('touchmove', e=>{
     isOverTitle = over;
 
     if (over) {
-      // faster more frequent glitches
-      document.documentElement.style.setProperty('--glitch-dur', '0.35s');
+      // more prominent and frequent glitch when cursor around title
+      document.documentElement.style.setProperty('--glitch-dur', '0.25s');
 
-      // black hole suck + cloud vortex on letters
-      titleLetters.forEach((letter, i) => {
-        const lrect = letter.getBoundingClientRect();
-        const lx = (lrect.left + lrect.right) / 2;
-        const ly = (lrect.top + lrect.bottom) / 2;
-        let dx = mxClient - lx;
-        let dy = myClient - ly;
-        const dist = Math.hypot(dx, dy) || 1;
-
-        // suck force (black hole)
-        const suck = Math.min(120, 1800 / (dist + 15));
-
-        // vortex: tangential swirl (cloud effect)
-        const swirl = 40 / (dist + 10);
-        const tx = dx / dist * suck + (-dy / dist) * swirl;
-        const ty = dy / dist * suck + (dx / dist) * swirl;
-
-        // add some chaotic cloud turbulence
-        const chaos = (Math.sin(t * 3 + i) * 8 + Math.cos(t * 5 + i * 2) * 5) * (suck / 80);
-        const rot = (Math.atan2(dy, dx) * 20 + t * 50) % 30 - 15;
-
-        letter.style.transform = `translate(${tx + chaos}px, ${ty + chaos * 0.6}px) rotate(${rot}deg)`;
-        letter.style.opacity = Math.max(0.2, 1 - suck / 90);
-      });
-
-      // also boost canvas particles towards title area (more suck)
-      // (handled in particle loop below with extra force)
+      // flash effect when cursor around (periodic bright flash)
+      const now = Date.now();
+      if (now - (window._lastTitleFlash || 0) > 400) {
+        window._lastTitleFlash = now;
+        const orig = titleEl.style.textShadow || '';
+        titleEl.style.textShadow = '0 0 40px #fff, 0 0 80px #aaddff, 0 0 120px #88ccff';
+        setTimeout(() => {
+          if (titleEl) titleEl.style.textShadow = orig;
+        }, 120);
+      }
     } else {
       document.documentElement.style.setProperty('--glitch-dur', '9s');
-      titleLetters.forEach(letter => {
-        letter.style.transform = '';
-        letter.style.opacity = '';
-      });
       isOverTitle = false;
     }
   }
@@ -574,6 +544,7 @@ window.addEventListener('touchmove', e=>{
   // Similar to a sleek glowing pointer, tiny size, with shine on interaction
   function triggerShine() {
     shineIntensity = 1.0;
+    mouseAttractEnd = Date.now() + 15000; // 15s attraction to cursor like Orion
   }
   window.addEventListener('mousedown', triggerShine, {passive: true});
   window.addEventListener('touchstart', triggerShine, {passive: true});
@@ -682,20 +653,16 @@ window.addEventListener('touchmove', e=>{
       shineIntensity = Math.max(0, shineIntensity * 0.84 - 0.01);
     }
 
+    // during 15s post-click attraction, keep cursor shining
+    if (Date.now() < mouseAttractEnd) {
+      shineIntensity = Math.max(shineIntensity, 0.65);
+    }
+
     // while the Orion track is actually playing (audible), pull more dots toward the button
     const orionActiveEl = document.getElementById('orion-player');
     const songActive = !!(orionActiveEl && orionActiveEl.classList.contains('playing') && !orionActiveEl.classList.contains('muted'));
 
     updateTitleEffect();
-
-    // title center in canvas space for black hole particle suck
-    let titleCX = W * 0.5;
-    let titleCY = H * 0.35;
-    if (titleRect) {
-      const dprHere = Math.min(window.devicePixelRatio||1,2);
-      titleCX = (titleRect.left + titleRect.width / 2) * dprHere;
-      titleCY = (titleRect.top + titleRect.height / 2) * dprHere;
-    }
 
     ctx.save();
     ctx.lineWidth = .5;
@@ -777,22 +744,18 @@ window.addEventListener('touchmove', e=>{
         p.glow = 0;
       }
 
-      // black hole title: suck particles harder to title center when cursor over EDOMITE
-      if (isOverTitle && titleCX && titleCY) {
-        const dx = titleCX - p.x;
-        const dy = titleCY - p.y;
+      // 15s attraction to cursor after any click (like the Orion song attraction)
+      if (Date.now() < mouseAttractEnd) {
+        const dx = mx - p.x;
+        const dy = my - p.y;
         const d = Math.hypot(dx, dy) || 1;
-        const suck = 1.8 / (0.3 + d / 45);
-        p.x += (dx / d) * suck;
-        p.y += (dy / d) * suck;
-        // vortex swirl for cloud
-        p.x += (-dy / d) * 1.2;
-        p.y += (dx / d) * 1.2;
-        // when very close: spit like neutrino star (random eject)
-        if (d < 35) {
-          p.x += (Math.random() - 0.5) * 12;
-          p.y += (Math.random() - 0.5) * 12;
-          p.vy -= 0.8; // upward spit bias
+        const force = 1.6 / (0.4 + d / 55);
+        p.x += (dx / d) * force;
+        p.y += (dy / d) * force;
+        // occasional extra pull for "all particles"
+        if (Math.random() < 0.05) {
+          p.x += (dx / d) * 0.8;
+          p.y += (dy / d) * 0.8;
         }
       }
 
