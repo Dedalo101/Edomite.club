@@ -288,6 +288,17 @@ nav a:hover {
   color: var(--rust);
 }
 
+/* muted state for true "automatic" start: audio plays silently until first interaction */
+.orion-player.muted {
+  opacity: 0.65;
+}
+.orion-player.muted.playing .track {
+  text-shadow: none;
+}
+.orion-player.muted .time {
+  opacity: 0.4;
+}
+
 @media (max-width:600px) {
   .orion-player { margin-top: 16px; gap: 6px; }
   .orion-player button { width: 17px; height: 17px; font-size: 7px; }
@@ -311,7 +322,7 @@ nav a:hover {
   <h1 class="title">Edomite</h1>
   <div class="rule"></div>
   <p class="tagline">Red Land · Dust · Bass</p>
-  <div class="orion-player" id="orion-player" title="Orion — click to play/pause (auto-starts on interaction)">
+  <div class="orion-player" id="orion-player" title="Orion — starts automatically (muted). Click anywhere or the player for sound. ▶/⏸ toggles. ↗ opens file.">
     <button id="play-btn" aria-label="Play Orion">▶</button>
     <span class="track">ORION</span>
     <span class="time" id="time">—</span>
@@ -470,6 +481,8 @@ window.addEventListener('touchmove', e=>{
 })();
 
 // --- Orion auto-play + custom player (minimal, fits aesthetic) ---
+// Starts *automatically* (muted) so the track is heard with zero extra clicks on most visits.
+// First user gesture (click/tap/keydown/mousemove) unmutes it. Manual play always gives sound.
 (function(){
   const playerEl = document.getElementById('orion-player');
   const btn = document.getElementById('play-btn');
@@ -477,7 +490,7 @@ window.addEventListener('touchmove', e=>{
   if (!playerEl || !btn || !timeEl) return;
 
   const audio = new Audio('Orion%20-%20edomite.mp3');
-  audio.preload = 'none'; // defer heavy fetch until we actually play
+  audio.preload = 'none'; // defer heavy 14MB fetch until playback actually begins
 
   let isPlaying = false;
   let userPaused = false;
@@ -491,15 +504,18 @@ window.addEventListener('touchmove', e=>{
   }
 
   function updateUI() {
+    const isMuted = audio.muted && isPlaying;
+    playerEl.classList.toggle('playing', isPlaying);
+    playerEl.classList.toggle('muted', isMuted);
+
+    let glyph = '▶';
+    let label = 'Play Orion';
     if (isPlaying) {
-      playerEl.classList.add('playing');
-      btn.textContent = '⏸';
-      btn.setAttribute('aria-label', 'Pause Orion');
-    } else {
-      playerEl.classList.remove('playing');
-      btn.textContent = '▶';
-      btn.setAttribute('aria-label', 'Play Orion');
+      glyph = isMuted ? '🔇' : '⏸';
+      label = isMuted ? 'Unmute Orion (click anywhere for sound)' : 'Pause Orion';
     }
+    btn.textContent = glyph;
+    btn.setAttribute('aria-label', label);
   }
 
   function updateTime() {
@@ -516,6 +532,7 @@ window.addEventListener('touchmove', e=>{
   audio.addEventListener('timeupdate', updateTime);
   audio.addEventListener('play', () => { isPlaying = true; updateUI(); });
   audio.addEventListener('pause', () => { isPlaying = false; updateUI(); });
+  audio.addEventListener('volumechange', updateUI); // catches mute/unmute
   audio.addEventListener('ended', () => {
     isPlaying = false;
     userPaused = true;
@@ -531,13 +548,12 @@ window.addEventListener('touchmove', e=>{
     if (e) e.stopPropagation();
     if (audio.paused) {
       userPaused = false;
-      // kick off load + play
+      audio.muted = false; // explicit user action on the button => deliver sound
       audio.play().then(() => {
         isPlaying = true;
         updateUI();
       }).catch(err => {
         console.warn('Playback start blocked or failed:', err);
-        // transient hint
         const prev = timeEl.textContent;
         timeEl.textContent = 'click again';
         setTimeout(() => { if (!isPlaying) timeEl.textContent = prev || '—'; }, 1400);
@@ -549,48 +565,78 @@ window.addEventListener('touchmove', e=>{
   }
 
   btn.addEventListener('click', togglePlay);
-  // clicking label/time also toggles
+  // clicking the label / time / area also toggles (and will unmute if needed)
   playerEl.addEventListener('click', (e) => {
     if (e.target !== btn) togglePlay();
   });
 
-  // Autoplay attempt shortly after load (frequently blocked by browser policy)
-  function attemptAutoplay() {
+  // === TRUE AUTOMATIC START ===
+  // We *always* start muted. This almost always succeeds without a prior gesture.
+  // The first real user interaction anywhere on the page then unmutes instantly.
+  function attemptAutoplayMuted() {
     if (userPaused) return;
+    audio.muted = true;
     audio.play().then(() => {
       isPlaying = true;
       updateUI();
     }).catch(() => {
-      // normal; we'll unlock on gesture below
+      // rare total block; gesture handler below will still try
     });
   }
-  window.addEventListener('load', () => setTimeout(attemptAutoplay, 720));
+  window.addEventListener('load', () => setTimeout(attemptAutoplayMuted, 650));
 
-  // First user gesture anywhere unlocks + starts (if not manually paused)
+  // Unmute + ensure playing on first gesture. We listen to several events so it feels instant.
   let unlocked = false;
-  function unlockAndPlay() {
+  function unlockAndUnmute(e) {
     if (unlocked) return;
     unlocked = true;
+
+    const wasMuted = audio.muted;
+    if (wasMuted) {
+      audio.muted = false;
+    }
+
     if (!isPlaying && !userPaused && audio.paused) {
       audio.play().then(() => {
         isPlaying = true;
         updateUI();
       }).catch(() => {});
+    } else if (wasMuted) {
+      // already playing (muted) — just flip to audible
+      updateUI();
     }
   }
+
+  // Primary reliable gestures
   ['click', 'touchstart', 'keydown'].forEach(type => {
-    document.addEventListener(type, unlockAndPlay, { passive: true });
+    document.addEventListener(type, unlockAndUnmute, { passive: true, once: false });
   });
 
-  // Keyboard support: Space or K toggles (when not typing in fields - none here)
+  // Extra: mousemove (the page is heavily mouse-driven for the canvas). This often works
+  // as an activation signal in practice for unmuting after the page is "engaged".
+  let mouseUnmuted = false;
+  window.addEventListener('mousemove', () => {
+    if (mouseUnmuted) return;
+    mouseUnmuted = true;
+    if (audio.muted && !userPaused) {
+      audio.muted = false;
+      if (audio.paused && !isPlaying) {
+        audio.play().then(() => { isPlaying = true; }).catch(()=>{});
+      }
+      updateUI();
+    }
+  }, { passive: true, once: true });
+
+  // Keyboard (space / k) — relaxed so it always works on this page
   document.addEventListener('keydown', (e) => {
-    if ((e.key === ' ' || e.key.toLowerCase() === 'k') && document.activeElement.tagName === 'BODY') {
+    if (e.key === ' ' || e.key.toLowerCase() === 'k') {
       e.preventDefault();
       togglePlay();
     }
   });
 
   // init
+  audio.muted = true;
   updateUI();
   timeEl.textContent = '—';
 })();
