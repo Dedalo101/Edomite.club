@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Edomite · Techno · Desert Bass · Glue Records</title>
-<meta name="description" content="Edomite — underground techno DJ and producer. Resident artist of Glue Records, Málaga. Mixes, bookings, DJ sets.">
-<meta name="keywords" content="Edomite, edomite.club, techno, underground, Glue Records, Málaga, DJ, electronic music, desert techno, DJ sets, bookings">
+<meta name="description" content="Edomite — underground techno DJ and producer. Resident artist of Glue Records, Málaga. Stream Orion on site, mixes, bookings, DJ sets.">
+<meta name="keywords" content="Edomite, edomite.club, Orion, techno, underground, Glue Records, Málaga, DJ, electronic music, desert techno, DJ sets, bookings">
 <meta name="author" content="Edomite">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://edomite.club/">
@@ -17,7 +17,7 @@
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="Edomite">
 <meta property="og:title" content="Edomite · Techno · Glue Records">
-<meta property="og:description" content="Underground techno DJ and producer. Glue Records artist. Bookings and DJ sets.">
+<meta property="og:description" content="Underground techno DJ and producer. Glue Records artist. Stream Orion — mixes, bookings, DJ sets.">
 <meta property="og:url" content="https://edomite.club/">
 <meta property="og:image" content="https://edomite.club/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -27,7 +27,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Edomite · Techno · Glue Records">
-<meta name="twitter:description" content="Underground techno DJ and producer. Glue Records artist.">
+<meta name="twitter:description" content="Underground techno DJ and producer. Glue Records artist. Play Orion on arrival.">
 <meta name="twitter:image" content="https://edomite.club/og-image.png">
 
 <script type="application/ld+json">
@@ -52,7 +52,19 @@
   "sameAs": [
     "https://www.mixcloud.com/Edomite/",
     "https://gluerecords.club"
-  ]
+  ],
+  "track": {
+    "@type": "MusicRecording",
+    "name": "Orion",
+    "byArtist": {
+      "@type": "MusicGroup",
+      "name": "Edomite"
+    },
+    "inAlbum": {
+      "@type": "MusicAlbum",
+      "name": "Edomite"
+    }
+  }
 }
 </script>
 
@@ -208,6 +220,67 @@ nav a:hover {
 @media (min-width:1600px) {
   .title { font-size: clamp(160px,12vw,220px); }
 }
+
+/* Orion track player — fits the desert/mono aesthetic, minimal, centered under tagline */
+.orion-player {
+  margin-top: 26px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: clamp(8px, 0.92vw, 10px);
+  letter-spacing: 0.22em;
+  color: rgba(200,100,30, .52);
+  pointer-events: all;
+  user-select: none;
+  transition: color .2s ease;
+}
+.orion-player.playing {
+  color: var(--sand);
+}
+.orion-player.playing .track {
+  text-shadow: 0 0 8px rgba(201,169,110,.35);
+}
+.orion-player button {
+  background: none;
+  border: 1px solid rgba(200,100,30,.38);
+  color: inherit;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .2s, color .2s, background .2s;
+  padding: 0;
+  border-radius: 1px;
+}
+.orion-player button:hover {
+  border-color: var(--rust);
+  color: #fff;
+  background: rgba(184,74,30,.08);
+}
+.orion-player .track {
+  font-family: 'Special Elite', serif;
+  letter-spacing: 0.12em;
+  font-size: clamp(9px,1.05vw,11px);
+  position: relative;
+}
+.orion-player .time {
+  font-size: 7.5px;
+  opacity: .55;
+  min-width: 58px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width:600px) {
+  .orion-player { margin-top: 16px; gap: 6px; }
+  .orion-player button { width: 17px; height: 17px; font-size: 7px; }
+  .orion-player .time { min-width: 52px; font-size: 7px; }
+}
 </style>
 </head>
 <body>
@@ -226,6 +299,11 @@ nav a:hover {
   <h1 class="title">Edomite</h1>
   <div class="rule"></div>
   <p class="tagline">Red Land · Dust · Bass</p>
+  <div class="orion-player" id="orion-player" title="Orion — click to play/pause (auto-starts on interaction)">
+    <button id="play-btn" aria-label="Play Orion">▶</button>
+    <span class="track">ORION</span>
+    <span class="time" id="time">—</span>
+  </div>
 </div>
 
 <nav>
@@ -237,7 +315,7 @@ nav a:hover {
 
 <section aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
   <h1>Edomite — Underground Techno DJ · Glue Records · Málaga</h1>
-  <p>Edomite is an underground techno DJ and producer, resident artist of Glue Records in Málaga, Spain. Specialising in hypnotic, dark techno with roots in desert bass and raw electronic sound. Available for bookings via Glue Records. Mixes and DJ sets on Mixcloud: mixcloud.com/Edomite/</p>
+  <p>Edomite is an underground techno DJ and producer, resident artist of Glue Records in Málaga, Spain. Specialising in hypnotic, dark techno with roots in desert bass and raw electronic sound. Stream the track Orion directly on this site. Available for bookings via Glue Records. Mixes and DJ sets on Mixcloud: mixcloud.com/Edomite/</p>
   <p>Edomite · techno · underground · Glue Records · Málaga · España · DJ sets · bookings · electronic music · edomite.club</p>
 </section>
 
@@ -376,6 +454,132 @@ window.addEventListener('touchmove', e=>{
   window.addEventListener('resize', resize, {passive:true});
   resize();
   draw();
+})();
+
+// --- Orion auto-play + custom player (minimal, fits aesthetic) ---
+(function(){
+  const playerEl = document.getElementById('orion-player');
+  const btn = document.getElementById('play-btn');
+  const timeEl = document.getElementById('time');
+  if (!playerEl || !btn || !timeEl) return;
+
+  const audio = new Audio('Orion%20-%20edomite.mp3');
+  audio.preload = 'none'; // defer heavy fetch until we actually play
+
+  let isPlaying = false;
+  let userPaused = false;
+  let durationStr = '';
+
+  function fmt(t) {
+    if (!isFinite(t) || t <= 0) return '--:--';
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function updateUI() {
+    if (isPlaying) {
+      playerEl.classList.add('playing');
+      btn.textContent = '⏸';
+      btn.setAttribute('aria-label', 'Pause Orion');
+    } else {
+      playerEl.classList.remove('playing');
+      btn.textContent = '▶';
+      btn.setAttribute('aria-label', 'Play Orion');
+    }
+  }
+
+  function updateTime() {
+    if (!timeEl) return;
+    const cur = fmt(audio.currentTime);
+    const dur = durationStr || (audio.duration ? fmt(audio.duration) : '');
+    timeEl.textContent = dur ? (cur + ' / ' + dur) : (cur !== '--:--' ? cur : '—');
+  }
+
+  audio.addEventListener('loadedmetadata', () => {
+    durationStr = fmt(audio.duration);
+    updateTime();
+  });
+  audio.addEventListener('timeupdate', updateTime);
+  audio.addEventListener('play', () => { isPlaying = true; updateUI(); });
+  audio.addEventListener('pause', () => { isPlaying = false; updateUI(); });
+  audio.addEventListener('ended', () => {
+    isPlaying = false;
+    userPaused = true;
+    updateUI();
+    if (durationStr) timeEl.textContent = durationStr;
+  });
+  audio.addEventListener('error', (e) => {
+    timeEl.textContent = 'err';
+    console.warn('Audio error for Orion track', e);
+  });
+
+  function togglePlay(e) {
+    if (e) e.stopPropagation();
+    if (audio.paused) {
+      userPaused = false;
+      // kick off load + play
+      audio.play().then(() => {
+        isPlaying = true;
+        updateUI();
+      }).catch(err => {
+        console.warn('Playback start blocked or failed:', err);
+        // transient hint
+        const prev = timeEl.textContent;
+        timeEl.textContent = 'click again';
+        setTimeout(() => { if (!isPlaying) timeEl.textContent = prev || '—'; }, 1400);
+      });
+    } else {
+      audio.pause();
+      userPaused = true;
+    }
+  }
+
+  btn.addEventListener('click', togglePlay);
+  // clicking label/time also toggles
+  playerEl.addEventListener('click', (e) => {
+    if (e.target !== btn) togglePlay();
+  });
+
+  // Autoplay attempt shortly after load (frequently blocked by browser policy)
+  function attemptAutoplay() {
+    if (userPaused) return;
+    audio.play().then(() => {
+      isPlaying = true;
+      updateUI();
+    }).catch(() => {
+      // normal; we'll unlock on gesture below
+    });
+  }
+  window.addEventListener('load', () => setTimeout(attemptAutoplay, 720));
+
+  // First user gesture anywhere unlocks + starts (if not manually paused)
+  let unlocked = false;
+  function unlockAndPlay() {
+    if (unlocked) return;
+    unlocked = true;
+    if (!isPlaying && !userPaused && audio.paused) {
+      audio.play().then(() => {
+        isPlaying = true;
+        updateUI();
+      }).catch(() => {});
+    }
+  }
+  ['click', 'touchstart', 'keydown'].forEach(type => {
+    document.addEventListener(type, unlockAndPlay, { passive: true });
+  });
+
+  // Keyboard support: Space or K toggles (when not typing in fields - none here)
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === ' ' || e.key.toLowerCase() === 'k') && document.activeElement.tagName === 'BODY') {
+      e.preventDefault();
+      togglePlay();
+    }
+  });
+
+  // init
+  updateUI();
+  timeEl.textContent = '—';
 })();
 </script>
 </body>
