@@ -416,9 +416,11 @@ window.addEventListener('touchmove', e=>{
 (function(){
   const cv  = document.getElementById('bg-canvas');
   const ctx = cv.getContext('2d');
+  cv.style.cursor = 'none'; // will be reinforced in resize
   let W, H, t = 0;
   let targetX = 0, targetY = 0;
   const sparks = [];
+  let shineIntensity = 0;
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio||1, 2);
@@ -427,6 +429,7 @@ window.addEventListener('touchmove', e=>{
     cv.width  = W; cv.height = H;
     cv.style.width  = window.innerWidth  + 'px';
     cv.style.height = window.innerHeight + 'px';
+    cv.style.cursor = 'none'; // custom tiny pointer drawn in JS
     initParticles();
     buildGrid();
     updateTarget();
@@ -491,6 +494,55 @@ window.addEventListener('touchmove', e=>{
     }
   }
 
+  // Tiny custom cursor pointer (drawn on canvas in JS)
+  // Similar to a sleek glowing pointer, tiny size, with shine on interaction
+  function triggerShine() {
+    shineIntensity = 1.0;
+  }
+  window.addEventListener('mousedown', triggerShine, {passive: true});
+  window.addEventListener('touchstart', triggerShine, {passive: true});
+
+  function drawTinyCursor(x, y, intensity) {
+    if (!x || !y) return;
+    const pulse = Math.sin(t * 6) * 0.15 + 1;
+    const base = 2.2 * pulse;
+
+    // subtle outer glow (blue tint for "light")
+    ctx.save();
+    ctx.shadowColor = '#88aaff';
+    ctx.shadowBlur = 2 + intensity * 5;
+    ctx.beginPath();
+    ctx.arc(x, y, base * 2.5 + intensity * 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(205, 90%, 70%, ${0.08 + intensity * 0.18})`;
+    ctx.fill();
+    ctx.restore();
+
+    // main tiny core dot (white/blue)
+    ctx.beginPath();
+    ctx.arc(x, y, base, 0, Math.PI * 2);
+    ctx.fillStyle = intensity > 0.1 ? '#aaddff' : '#ffffff';
+    ctx.fill();
+
+    // very thin ring for definition
+    ctx.beginPath();
+    ctx.arc(x, y, base * 1.6, 0, Math.PI * 2);
+    ctx.strokeStyle = `hsla(200, 80%, 80%, ${0.4 + intensity * 0.3})`;
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+
+    // tiny elongated spikes / cross for star-like pointer, lengthens on shine/click
+    ctx.strokeStyle = `hsla(200, 90%, 75%, ${0.65 + intensity * 0.35})`;
+    ctx.lineWidth = 0.7;
+    const rayLen = 3.5 + intensity * 6; // elongated blue light on touch/click
+    for (let i = 0; i < 4; i++) {
+      const ang = i * (Math.PI / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + Math.cos(ang) * (base + 0.5), y + Math.sin(ang) * (base + 0.5));
+      ctx.lineTo(x + Math.cos(ang) * rayLen, y + Math.sin(ang) * rayLen);
+      ctx.stroke();
+    }
+  }
+
   function warpPt(bx, by, tt) {
     const dx = bx/W*2-1 - PTR.nx;
     const dy = by/H*2-1 - PTR.ny;
@@ -512,6 +564,10 @@ window.addEventListener('touchmove', e=>{
     const dpr = Math.min(window.devicePixelRatio||1,2);
     updateTarget();
     const mx = PTR.x * dpr, my = PTR.y * dpr;
+
+    if (shineIntensity > 0) {
+      shineIntensity = Math.max(0, shineIntensity * 0.84 - 0.01);
+    }
 
     // while the Orion track is actually playing (audible), pull more dots toward the button
     const orionActiveEl = document.getElementById('orion-player');
@@ -662,6 +718,9 @@ window.addEventListener('touchmove', e=>{
     vig.addColorStop(1,'rgba(0,0,0,.72)');
     ctx.fillStyle = vig;
     ctx.fillRect(0,0,W,H);
+
+    // draw tiny custom cursor last (on top of everything)
+    drawTinyCursor(mx, my, shineIntensity);
   }
 
   // Visual burst on the Orion play button when touched/clicked (pairs with the audio toggle)
