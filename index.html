@@ -457,6 +457,10 @@ window.addEventListener('touchmove', e=>{
     updateTarget();
     const mx = PTR.x * dpr, my = PTR.y * dpr;
 
+    // while the Orion track is actually playing (audible), pull more dots toward the button
+    const orionActiveEl = document.getElementById('orion-player');
+    const songActive = !!(orionActiveEl && orionActiveEl.classList.contains('playing') && !orionActiveEl.classList.contains('muted'));
+
     ctx.save();
     ctx.lineWidth = .5;
     const cols = Math.ceil(W/GS)+2;
@@ -492,12 +496,14 @@ window.addEventListener('touchmove', e=>{
       p.x += p.drift + PTR.nx*.28 + Math.sin(t*p.wave*.3+i)*.18;
       p.y += p.vy;
 
-      // Orion play button gravity for a portion of the dots
+      // Orion play button gravity for a portion of the dots.
+      // While the track is actively playing (unmuted), attraction is stronger and more dots get recruited.
       if (p.mode === 'orion' && targetX && targetY) {
         const dx = targetX - p.x;
         const dy = targetY - p.y;
         const d = Math.hypot(dx, dy) || 1;
-        const force = 0.55 / (0.7 + d / 95);
+        const forceMul = songActive ? 1.7 : 1.0;
+        const force = (0.55 / (0.7 + d / 95)) * forceMul;
         p.x += (dx / d) * force;
         p.y += (dy / d) * force;
         p.vy *= 0.97;
@@ -529,6 +535,10 @@ window.addEventListener('touchmove', e=>{
           p.lum = p.baseLum;
           if (Math.random() < 0.35) p.mode = 'normal';
         }
+      } else if (songActive && p.mode !== 'orion' && Math.random() < 0.012) {
+        // while the song is playing, gradually recruit more dots toward it
+        p.mode = 'orion';
+        p.glow = 0;
       }
 
       const dm2  = Math.hypot(p.x-mx, p.y-my);
