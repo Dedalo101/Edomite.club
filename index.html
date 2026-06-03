@@ -299,6 +299,62 @@ nav a:hover {
   opacity: 0.4;
 }
 
+/* Bookings modal — dark, minimal, fits the existing aesthetic */
+#bookings-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 3, 2, 0.94);
+  padding: 20px;
+  cursor: default;
+}
+#bookings-modal .modal-content {
+  width: 100%;
+  max-width: 920px;
+  background: var(--bg);
+  border: 1px solid rgba(200, 100, 30, 0.25);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  overflow: hidden;
+  font-family: 'Share Tech Mono', monospace;
+}
+#bookings-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(200, 100, 30, 0.15);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(200, 100, 30, 0.6);
+}
+#bookings-modal .modal-header button {
+  background: none;
+  border: 1px solid rgba(200, 100, 30, 0.3);
+  color: inherit;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  padding: 1px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#bookings-modal .modal-header button:hover {
+  border-color: var(--rust);
+  color: #fff;
+  background: rgba(184, 74, 30, 0.1);
+}
+#bookings-modal iframe {
+  display: block;
+  width: 100%;
+  height: 650px;
+  max-height: 72vh;
+  border: none;
+  background: #060302;
+}
+
 @media (max-width:600px) {
   .orion-player { margin-top: 16px; gap: 6px; }
   .orion-player button { width: 17px; height: 17px; font-size: 7px; }
@@ -332,14 +388,14 @@ nav a:hover {
 
 <nav>
   <a href="https://www.mixcloud.com/Edomite/" target="_blank" rel="noopener">mixes</a>
-  <a href="mailto:info@gluerecords.club">bookings</a>
+  <a id="bookings-link" href="https://ra.co/promoters/188173" target="_blank" rel="noopener">bookings</a>
   <a href="https://www.mixcloud.com/Edomite/" target="_blank" rel="noopener">dj sets</a>
   <a href="https://gluerecords.club" target="_blank" rel="noopener">label</a>
 </nav>
 
 <section aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
   <h1>Edomite — Underground Techno DJ · Glue Records · Málaga</h1>
-  <p>Edomite is an underground techno DJ and producer, resident artist of Glue Records in Málaga, Spain. Specialising in hypnotic, dark techno with roots in desert bass and raw electronic sound. Stream the track Orion directly on this site. Available for bookings via Glue Records. Mixes and DJ sets on Mixcloud: mixcloud.com/Edomite/</p>
+  <p>Edomite is an underground techno DJ and producer, resident artist of Glue Records in Málaga, Spain. Specialising in hypnotic, dark techno with roots in desert bass and raw electronic sound. Stream the track Orion directly on this site. Bookings & events via RA. Mixes and DJ sets on Mixcloud: mixcloud.com/Edomite/</p>
   <p>Edomite · techno · underground · Glue Records · Málaga · España · DJ sets · bookings · electronic music · edomite.club</p>
 </section>
 
@@ -791,7 +847,55 @@ window.addEventListener('touchmove', e=>{
   audio.muted = true;
   updateUI();
   timeEl.textContent = '—';
+
+  // Bookings modal helpers (called from nav + modal HTML)
+  window.showBookingsModal = function() {
+    const m = document.getElementById('bookings-modal');
+    if (!m) return;
+    m.style.display = 'flex';
+
+    // Lazy load the RA iframe only when the modal is first opened (perf)
+    const iframe = m.querySelector('iframe');
+    if (iframe && iframe.dataset.src && !iframe.src) {
+      iframe.src = iframe.dataset.src;
+    }
+  };
+  window.hideBookingsModal = function() {
+    const m = document.getElementById('bookings-modal');
+    if (m) m.style.display = 'none';
+  };
+
+  // Wire the nav "bookings" to open the RA events iframe modal
+  const bookingsLink = document.getElementById('bookings-link');
+  if (bookingsLink) {
+    bookingsLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.showBookingsModal();
+    });
+  }
+
+  // Close modal with Escape key (in addition to the X and backdrop click)
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const m = document.getElementById('bookings-modal');
+      if (m && m.style.display === 'flex') {
+        window.hideBookingsModal();
+      }
+    }
+  });
 })();
 </script>
+
+<!-- Bookings modal with RA events widget -->
+<div id="bookings-modal" onclick="if (event.target.id === 'bookings-modal') hideBookingsModal();">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>events • bookings</span>
+      <button onclick="hideBookingsModal()" aria-label="Close bookings">close</button>
+    </div>
+    <iframe data-src="https://ra.co/promoters/188173/widget/events?theme=dark" height="650" width="100%" style="border:none" title="Edomite events on Resident Advisor"></iframe>
+  </div>
+</div>
+
 </body>
 </html>
