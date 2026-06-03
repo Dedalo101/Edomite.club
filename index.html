@@ -275,6 +275,18 @@ nav a:hover {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+.orion-player .fallback {
+  opacity: .35;
+  text-decoration: none;
+  font-size: 8px;
+  line-height: 1;
+  padding: 1px 2px;
+  transition: opacity .2s, color .2s;
+}
+.orion-player .fallback:hover {
+  opacity: .9;
+  color: var(--rust);
+}
 
 @media (max-width:600px) {
   .orion-player { margin-top: 16px; gap: 6px; }
@@ -303,6 +315,7 @@ nav a:hover {
     <button id="play-btn" aria-label="Play Orion">▶</button>
     <span class="track">ORION</span>
     <span class="time" id="time">—</span>
+    <a class="fallback" href="Orion%20-%20edomite.mp3" target="_blank" rel="noopener" title="Direct link to Orion file (fallback / download / browser player)">↗</a>
   </div>
 </div>
 
