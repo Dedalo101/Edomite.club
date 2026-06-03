@@ -504,42 +504,56 @@ window.addEventListener('touchmove', e=>{
 
   function drawTinyCursor(x, y, intensity) {
     if (!x || !y) return;
-    const pulse = Math.sin(t * 6) * 0.15 + 1;
-    const base = 2.2 * pulse;
+    const pulse = Math.sin(t * 6) * 0.2 + 1;
+    const base = 4.5 * pulse;  // not so tiny anymore
 
-    // subtle outer glow (blue tint for "light")
+    // stronger outer glow (blue light)
     ctx.save();
     ctx.shadowColor = '#88aaff';
-    ctx.shadowBlur = 2 + intensity * 5;
+    ctx.shadowBlur = 4 + intensity * 10;
     ctx.beginPath();
-    ctx.arc(x, y, base * 2.5 + intensity * 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(205, 90%, 70%, ${0.08 + intensity * 0.18})`;
+    ctx.arc(x, y, base * 3 + intensity * 3, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(205, 95%, 72%, ${0.12 + intensity * 0.25})`;
     ctx.fill();
     ctx.restore();
 
-    // main tiny core dot (white/blue)
+    // main core dot (brighter)
     ctx.beginPath();
     ctx.arc(x, y, base, 0, Math.PI * 2);
     ctx.fillStyle = intensity > 0.1 ? '#aaddff' : '#ffffff';
     ctx.fill();
 
-    // very thin ring for definition
+    // ring
     ctx.beginPath();
-    ctx.arc(x, y, base * 1.6, 0, Math.PI * 2);
-    ctx.strokeStyle = `hsla(200, 80%, 80%, ${0.4 + intensity * 0.3})`;
-    ctx.lineWidth = 0.6;
+    ctx.arc(x, y, base * 1.9, 0, Math.PI * 2);
+    ctx.strokeStyle = `hsla(200, 85%, 82%, ${0.5 + intensity * 0.35})`;
+    ctx.lineWidth = 0.9;
     ctx.stroke();
 
-    // tiny elongated spikes / cross for star-like pointer, lengthens on shine/click
-    ctx.strokeStyle = `hsla(200, 90%, 75%, ${0.65 + intensity * 0.35})`;
-    ctx.lineWidth = 0.7;
-    const rayLen = 3.5 + intensity * 6; // elongated blue light on touch/click
+    // elongated spikes - way more elongated on shine/click
+    ctx.strokeStyle = `hsla(200, 95%, 78%, ${0.7 + intensity * 0.3})`;
+    ctx.lineWidth = 1 + intensity * 1.2;
+    const rayLen = 6 + intensity * 28; // much more elongated blue light
     for (let i = 0; i < 4; i++) {
       const ang = i * (Math.PI / 2);
       ctx.beginPath();
-      ctx.moveTo(x + Math.cos(ang) * (base + 0.5), y + Math.sin(ang) * (base + 0.5));
+      ctx.moveTo(x + Math.cos(ang) * (base + 1), y + Math.sin(ang) * (base + 1));
       ctx.lineTo(x + Math.cos(ang) * rayLen, y + Math.sin(ang) * rayLen);
       ctx.stroke();
+    }
+
+    // extra faint long rays for more "spawn" light effect when shining
+    if (intensity > 0.15) {
+      ctx.strokeStyle = `hsla(205, 90%, 70%, ${0.25 + intensity * 0.2})`;
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < 4; i++) {
+        const ang = i * (Math.PI / 2) + 0.3; // offset for more rays
+        const extraLen = rayLen * 1.3;
+        ctx.beginPath();
+        ctx.moveTo(x + Math.cos(ang) * (base * 0.8), y + Math.sin(ang) * (base * 0.8));
+        ctx.lineTo(x + Math.cos(ang) * extraLen, y + Math.sin(ang) * extraLen);
+        ctx.stroke();
+      }
     }
   }
 
