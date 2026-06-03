@@ -72,6 +72,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
+<!-- Favicon: simple SVG star/particle in site colors (dark + rust), works in all browsers/modals/tabs -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23060302'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23b84a1e'/%3E%3Cpath d='M16 8 L17 15 L24 16 L17 17 L16 24 L15 17 L8 16 L15 15 Z' fill='%23b84a1e'/%3E%3C/svg%3E">
+
 <style>
 :root {
   --rust:   #b84a1e;
@@ -544,7 +547,7 @@ window.addEventListener('touchmove', e=>{
   // Similar to a sleek glowing pointer, tiny size, with shine on interaction
   function triggerShine() {
     shineIntensity = 1.0;
-    mouseAttractEnd = Date.now() + 15000; // 15s attraction to cursor like Orion
+    mouseAttractEnd = Date.now() + 3000; // 3s attraction to cursor like Orion (per request)
   }
   window.addEventListener('mousedown', triggerShine, {passive: true});
   window.addEventListener('touchstart', triggerShine, {passive: true});
@@ -653,7 +656,7 @@ window.addEventListener('touchmove', e=>{
       shineIntensity = Math.max(0, shineIntensity * 0.84 - 0.01);
     }
 
-    // during 15s post-click attraction, keep cursor shining
+    // during 3s post-click attraction, keep cursor shining
     if (Date.now() < mouseAttractEnd) {
       shineIntensity = Math.max(shineIntensity, 0.65);
     }
@@ -744,7 +747,7 @@ window.addEventListener('touchmove', e=>{
         p.glow = 0;
       }
 
-      // 15s attraction to cursor after any click (like the Orion song attraction)
+      // 3s attraction to cursor after any click (like the Orion song attraction)
       if (Date.now() < mouseAttractEnd) {
         const dx = mx - p.x;
         const dy = my - p.y;
