@@ -87,7 +87,7 @@ html, body {
   background: var(--bg);
   overflow: hidden;
   font-family: 'Share Tech Mono', monospace;
-  cursor: crosshair;
+  cursor: none; /* replaced by custom pulsing neutrino star on canvas */
 }
 
 #bg-canvas {
@@ -313,11 +313,11 @@ nav a:hover {
 }
 #bookings-modal .modal-content {
   width: 100%;
-  max-width: 920px;
+  max-width: 1040px;
   background: var(--bg);
   border: 1px solid rgba(200, 100, 30, 0.25);
   box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  overflow: hidden;
+  overflow: visible;
   font-family: 'Share Tech Mono', monospace;
 }
 #bookings-modal .modal-header {
@@ -349,8 +349,8 @@ nav a:hover {
 #bookings-modal iframe {
   display: block;
   width: 100%;
-  height: 650px;
-  max-height: 72vh;
+  height: 680px;
+  max-height: 82vh;
   border: none;
   background: #060302;
 }
@@ -419,6 +419,7 @@ window.addEventListener('touchmove', e=>{
   let W, H, t = 0;
   let targetX = 0, targetY = 0;
   const sparks = [];
+  let shineIntensity = 0; // for the neutrino star pointer shine on click/touch
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio||1, 2);
@@ -427,6 +428,7 @@ window.addEventListener('touchmove', e=>{
     cv.width  = W; cv.height = H;
     cv.style.width  = window.innerWidth  + 'px';
     cv.style.height = window.innerHeight + 'px';
+    cv.style.cursor = 'none'; // custom neutrino star pointer
     initParticles();
     buildGrid();
     updateTarget();
@@ -491,6 +493,75 @@ window.addEventListener('touchmove', e=>{
     }
   }
 
+  // Pulsing neutrino star pointer + elongated blue light on interaction
+  function triggerShine() { shineIntensity = 1.0; }
+  window.addEventListener('mousedown', triggerShine, {passive: true});
+  window.addEventListener('touchstart', triggerShine, {passive: true});
+
+  function drawNeutrinoStar(x, y, intensity) {
+    const pulse = Math.sin(t * 4.5) * 0.25 + 1.0; // gentle pulse
+    const baseSize = 2.8;
+    const coreR = baseSize * pulse * (1 + intensity * 0.6);
+
+    // core (bright neutrino-like point)
+    ctx.save();
+    ctx.shadowColor = '#aaddff';
+    ctx.shadowBlur = 6 + intensity * 12;
+    ctx.beginPath();
+    ctx.arc(x, y, coreR, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(205, 95%, 88%, ${0.85 + intensity * 0.15})`;
+    ctx.fill();
+    ctx.restore();
+
+    // soft outer glow
+    ctx.save();
+    ctx.shadowColor = '#66bbff';
+    ctx.shadowBlur = 18 + intensity * 25;
+    ctx.beginPath();
+    ctx.arc(x, y, coreR * 2.2, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(200, 80%, 65%, ${0.12 + intensity * 0.25})`;
+    ctx.fill();
+    ctx.restore();
+
+    // star rays / spikes - elongated when shining
+    const numRays = 5;
+    const rayBaseLen = 7 + intensity * 18; // elongated blue light on click/touch
+    for (let i = 0; i < numRays; i++) {
+      const ang = (i / numRays) * Math.PI * 2 + t * 0.8; // slow spin
+      const len = rayBaseLen * (0.7 + Math.sin(t * 3 + i * 1.7) * 0.3 * (1 + intensity));
+      const thickness = 1.2 + intensity * 0.8;
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(ang);
+
+      // elongated ray (thin triangle for light streak)
+      ctx.beginPath();
+      ctx.moveTo(0, -thickness);
+      ctx.lineTo(len, 0);
+      ctx.lineTo(0, thickness);
+      ctx.closePath();
+      ctx.fillStyle = `hsla(200, 90%, 78%, ${0.35 + intensity * 0.55})`;
+      ctx.fill();
+
+      // extra thin bright core ray for "shine"
+      if (intensity > 0.05) {
+        ctx.shadowBlur = 4 + intensity * 8;
+        ctx.shadowColor = '#99ddff';
+        ctx.fillStyle = `hsla(195, 100%, 85%, ${0.5 + intensity * 0.4})`;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // small pulsing ring around for extra "star" feel
+    ctx.beginPath();
+    ctx.arc(x, y, coreR * (3.5 + Math.sin(t * 2) * 0.5 * intensity), 0, Math.PI * 2);
+    ctx.strokeStyle = `hsla(200, 70%, 70%, ${0.15 + intensity * 0.2})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
   function warpPt(bx, by, tt) {
     const dx = bx/W*2-1 - PTR.nx;
     const dy = by/H*2-1 - PTR.ny;
@@ -512,6 +583,10 @@ window.addEventListener('touchmove', e=>{
     const dpr = Math.min(window.devicePixelRatio||1,2);
     updateTarget();
     const mx = PTR.x * dpr, my = PTR.y * dpr;
+
+    if (shineIntensity > 0) {
+      shineIntensity = Math.max(0, shineIntensity * 0.82 - 0.008); // decay the blue shine
+    }
 
     // while the Orion track is actually playing (audible), pull more dots toward the button
     const orionActiveEl = document.getElementById('orion-player');
@@ -662,6 +737,10 @@ window.addEventListener('touchmove', e=>{
     vig.addColorStop(1,'rgba(0,0,0,.72)');
     ctx.fillStyle = vig;
     ctx.fillRect(0,0,W,H);
+
+    // Custom pointer: pulsing neutrino star (blue) + elongated shine on click/touch
+    const mx = PTR.x * dpr, my = PTR.y * dpr;
+    drawNeutrinoStar(mx, my, shineIntensity);
   }
 
   // Visual burst on the Orion play button when touched/clicked (pairs with the audio toggle)
@@ -886,14 +965,17 @@ window.addEventListener('touchmove', e=>{
 })();
 </script>
 
-<!-- Bookings modal with RA events widget -->
+<!-- Bookings modal with RA events widget (flyers & dates) -->
 <div id="bookings-modal" onclick="if (event.target.id === 'bookings-modal') hideBookingsModal();">
   <div class="modal-content">
     <div class="modal-header">
       <span>events • bookings</span>
       <button onclick="hideBookingsModal()" aria-label="Close bookings">close</button>
     </div>
-    <iframe data-src="https://ra.co/promoters/188173/widget/events?theme=dark" height="650" width="100%" style="border:none" title="Edomite events on Resident Advisor"></iframe>
+    <iframe data-src="https://ra.co/promoters/188173/widget/events?theme=dark" height="680" width="100%" style="border:none" title="Edomite events on Resident Advisor"></iframe>
+    <div style="padding:8px 14px 10px; font-size:8px; letter-spacing:0.15em; color:rgba(200,100,30,.45); text-align:right; border-top:1px solid rgba(200,100,30,.1);">
+      full calendar on <a href="https://ra.co/promoters/188173" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ra.co</a> • or email info@gluerecords.club
+    </div>
   </div>
 </div>
 
