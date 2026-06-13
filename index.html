@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>Edomite · Techno · Desert Bass · Glue Records</title>
 <meta name="description" content="Edomite — underground techno DJ and producer. Resident artist of Glue Records, Málaga. Stream Orion on site, mixes, bookings, DJ sets.">
@@ -91,6 +91,8 @@ html, body {
   width:100%; height:100%;
   background: var(--bg);
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
   font-family: 'Share Tech Mono', monospace;
   cursor: none;
 }
@@ -99,6 +101,7 @@ html, body {
   position: fixed; inset: 0;
   width:100%; height:100%;
   z-index: 0;
+  touch-action: none;
 }
 
 #scanlines {
@@ -360,10 +363,30 @@ nav a:hover {
   background: #060302;
 }
 
+.seo-hidden {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
 @media (max-width:600px) {
   .orion-player { margin-top: 16px; gap: 6px; }
   .orion-player button { width: 17px; height: 17px; font-size: 7px; }
   .orion-player .time { min-width: 52px; font-size: 7px; }
+}
+
+/* Mobile: lock the view so touch+drag does not shift/scroll the site or trigger rubberband.
+   touch-action:none on root + canvas prevents pan; manipulation on tappable UI for responsive taps.
+   overscroll none kills bounce. */
+nav, .label-link, .orion-player, .orion-player *, button, a[href] {
+  touch-action: manipulation;
+}
+#bookings-modal, #bookings-modal .modal-content, #bookings-modal iframe {
+  touch-action: auto;
 }
 </style>
 </head>
@@ -384,7 +407,7 @@ nav a:hover {
   <div class="rule"></div>
   <p class="tagline">Red Land · Dust · Bass</p>
   <div class="orion-player" id="orion-player" title="Orion — starts automatically (muted). Click anywhere or the player for sound. ▶/⏸ toggles. ↗ opens file.">
-    <button id="play-btn" aria-label="Play Orion">▶</button>
+    <button type="button" id="play-btn" aria-label="Play Orion">▶</button>
     <span class="track">ORION</span>
     <span class="time" id="time">—</span>
     <a class="fallback" href="Orion%20-%20edomite.mp3" target="_blank" rel="noopener" title="Direct link to Orion file (fallback / download / browser player)">↗</a>
@@ -398,9 +421,9 @@ nav a:hover {
   <a href="https://gluerecords.club" target="_blank" rel="noopener">label</a>
 </nav>
 
-<section aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
+<section class="seo-hidden" aria-hidden="true">
   <h1>Edomite — Underground Techno DJ · Glue Records · Málaga</h1>
-  <p>Edomite is an underground techno DJ and producer, resident artist of Glue Records in Málaga, Spain. Specialising in hypnotic, dark techno with roots in desert bass and raw electronic sound. Stream the track Orion directly on this site. Bookings & events via RA. Mixes and DJ sets on Mixcloud: mixcloud.com/Edomite/</p>
+  <p>Edomite is an underground techno DJ and producer, resident artist of Glue Records in Málaga, Spain. Specialising in hypnotic, dark techno with roots in desert bass and raw electronic sound. Stream the track Orion directly on this site. Bookings &amp; events via RA. Mixes and DJ sets on Mixcloud: mixcloud.com/Edomite/</p>
   <p>Edomite · techno · underground · Glue Records · Málaga · España · DJ sets · bookings · electronic music · edomite.club</p>
 </section>
 
@@ -417,6 +440,16 @@ window.addEventListener('touchmove', e=>{
   PTR.nx=t.clientX/window.innerWidth*2-1;
   PTR.ny=t.clientY/window.innerHeight*2-1;
 },{passive:true});
+
+// Strongly prevent the page content from shifting on touch drag (mobile only).
+// CSS touch-action helps, this catches cases where browser still tries to pan/overscroll.
+if ('ontouchstart' in window) {
+  document.addEventListener('touchmove', e => {
+    // Do not interfere with scrolling inside the events modal (iframe)
+    if (e.target.closest && e.target.closest('#bookings-modal')) return;
+    e.preventDefault();
+  }, { passive: false });
+}
 
 (function(){
   const cv  = document.getElementById('bg-canvas');
@@ -1060,9 +1093,9 @@ window.addEventListener('touchmove', e=>{
   <div class="modal-content">
     <div class="modal-header">
       <span>events • bookings</span>
-      <button onclick="hideBookingsModal()" aria-label="Close bookings">close</button>
+      <button type="button" onclick="hideBookingsModal()" aria-label="Close bookings">close</button>
     </div>
-    <iframe data-src="https://ra.co/promoters/188173/widget/events?theme=dark" height="650" width="100%" style="border:none" title="Edomite events on Resident Advisor"></iframe>
+    <iframe data-src="https://ra.co/promoters/188173/widget/events?theme=dark" title="Edomite events on Resident Advisor" loading="lazy"></iframe>
   </div>
 </div>
 
