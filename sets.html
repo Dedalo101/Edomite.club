@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Edomite DJ sets — underground techno mixes streamed on edomite.club via Mixcloud embeds.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://edomite.club/sets.html">
+<meta name="theme-color" content="#060302">
+<meta name="color-scheme" content="dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https:; frame-src https://www.mixcloud.com https://player-widget.mixcloud.com; frame-ancestors 'none'">
+<title>DJ Sets — Edomite</title>
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23060302'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23b84a1e'/%3E%3Cpath d='M16 8 L17 15 L24 16 L17 17 L16 24 L15 17 L8 16 L15 15 Z' fill='%23b84a1e'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --rust:   #b84a1e;
+  --sand:   #c9a96e;
+  --ember:  #e05a1f;
+  --bg:     #060302;
+  --dim:    rgba(200,120,40,.45);
+  --faint:  rgba(200,100,30,.18);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html, body {
+  min-height: 100%;
+  background: var(--bg);
+  color: #e8e0d4;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+body {
+  line-height: 1.5;
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 70% at 50% 0%,
+    transparent 15%, rgba(6,3,2,0.92) 100%);
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: clamp(28px, 6vh, 56px) clamp(20px, 5vw, 40px) clamp(48px, 8vh, 80px);
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: clamp(24px, 5vh, 40px);
+  font-family: 'Special Elite', serif;
+  font-size: clamp(11px, 2.8vw, 14px);
+  letter-spacing: .12em;
+  color: var(--dim);
+  text-decoration: none;
+  text-transform: lowercase;
+  transition: color .2s;
+}
+
+.back:hover { color: var(--sand); }
+
+.eyebrow {
+  font-size: clamp(8px, 2.2vw, 10px);
+  letter-spacing: .55em;
+  color: rgba(200,100,30,.35);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-family: 'Special Elite', serif;
+  font-size: clamp(32px, 8vw, 56px);
+  font-weight: normal;
+  letter-spacing: .06em;
+  color: #fff;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  text-shadow: 0 0 60px rgba(180,60,10,.1);
+}
+
+.lead {
+  font-size: clamp(10px, 2.6vw, 12px);
+  letter-spacing: .22em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: clamp(28px, 5vh, 40px);
+  max-width: 36rem;
+}
+
+.sets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.set-card {
+  border: 1px solid var(--faint);
+  padding: 14px;
+  background: rgba(6,3,2,0.65);
+}
+
+.set-media {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 36rem) {
+  .set-media {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.set-art {
+  flex: 0 0 auto;
+  display: block;
+  width: 120px;
+  height: 120px;
+  max-width: 100%;
+  object-fit: cover;
+  border: 1px solid var(--faint);
+  background: rgba(0,0,0,.3);
+}
+
+.set-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.set-title {
+  font-family: 'Special Elite', serif;
+  font-size: clamp(12px, 3vw, 15px);
+  font-weight: normal;
+  letter-spacing: .06em;
+  color: var(--sand);
+  margin-bottom: 12px;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.set-frame {
+  display: block;
+  width: 100%;
+  height: 120px;
+  border: 0;
+  background: transparent;
+}
+
+a, button { touch-action: manipulation; }
+</style>
+</head>
+<body>
+
+<div class="vignette" aria-hidden="true"></div>
+
+<main class="page">
+  <a href="/" class="back">← edomite</a>
+
+  <header>
+    <p class="eyebrow">Mixcloud · Glue Records</p>
+    <h1 class="title">DJ Sets</h1>
+    <p class="lead">Underground techno sessions — play in place, no redirect.</p>
+  </header>
+
+  <div id="sets-list" class="sets-list" aria-live="polite"></div>
+</main>
+
+<script src="/js/sets-data.js" defer></script>
+<script src="/js/sets.js" defer></script>
+</body>
+</html>
